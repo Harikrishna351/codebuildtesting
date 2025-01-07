@@ -48,11 +48,6 @@ def main():
     print(f"Using Project Name: {project_name}")
     print(f"Using Build ID: {build_id}")
 
-    # Check if the project name is in the monitored list
-    if project_name not in [f"codebuildtest-{env}"]:
-        print(f"Project {project_name} is not in the monitored list.")
-        return
-
     # Fetch the build status dynamically
     build_status = get_build_status(build_id)
     if not build_status:
@@ -70,12 +65,9 @@ def main():
     <p>Status: {build_status}</p>
     """
 
-    # Check the build status and send emails accordingly
-    if build_status in ['IN_PROGRESS', 'SUCCEEDED', 'FAILED', 'STOPPED']:
-        print(f'Sending email for project: {project_name} with status: {build_status}')
-        send_email(email_subject, email_body, email_from, email_to, smtp_server, smtp_port, smtp_username, smtp_password)
-    else:
-        print(f'Build status {build_status} is not in the list of statuses to process.')
+    # Send email based on the build status
+    print(f'Sending email for project: {project_name} with status: {build_status}')
+    send_email(email_subject, email_body, email_from, email_to, smtp_server, smtp_port, smtp_username, smtp_password)
 
 if __name__ == '__main__':
     main()
