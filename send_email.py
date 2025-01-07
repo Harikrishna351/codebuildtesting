@@ -69,7 +69,7 @@ def main():
 
     # Get actual values from environment variables
     env = os.environ.get('ENV', 'np')  # Default environment
-    project_name = os.environ.get('CODEBUILD_PROJECT', f"cms-spares-codebuild-Lab1--Access-and-Setups-{env}")
+    project_name = os.environ.get('CODEBUILD_PROJECT', f"codebuildtest-{env}")
     build_id = os.environ.get('CODEBUILD_BUILD_ID', 'your-build-id')  # Update with actual build ID
 
     print(f"Using Project Name: {project_name}")
