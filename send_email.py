@@ -3,23 +3,20 @@ import boto3
 import smtplib
 from email.mime.text import MIMEText
 
-def send_email(message):
-    smtp_server = "email-smtp.us-east-1.amazonaws.com"
-    smtp_port = 587
-    smtp_username = "AKIAS74TLYHELKOX7D74"
-    smtp_password = "BOnvUFr8KQHsryZa3a/r2NRXSASK6UbhSpRIwLamvEZD"
-    from_email = "harikarn10@gmail.com"
-    to_email = "harikrishnatangelapally@gmail.com"
-
+def send_email(subject, message, from_email, to_email, smtp_server, smtp_port, smtp_username, smtp_password):
     msg = MIMEText(message)
-    msg['Subject'] = 'AWS CodeBuild Notification'
+    msg['Subject'] = subject
     msg['From'] = from_email
     msg['To'] = to_email
 
-    with smtplib.SMTP(smtp_server, smtp_port) as server:
-        server.starttls()
-        server.login(smtp_username, smtp_password)
-        server.sendmail(from_email, to_email, msg.as_string())
+    try:
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            server.login(smtp_username, smtp_password)
+            server.sendmail(from_email, to_email, msg.as_string())
+        print(f"Email sent to {to_email}.")
+    except Exception as e:
+        print(f"Error sending email: {e}")
 
 def get_build_status(build_id):
     codebuild_client = boto3.client('codebuild')
@@ -38,6 +35,10 @@ def get_build_status(build_id):
 def main():
     email_from = "harikarn10@gmail.com"
     email_to = "harikrishnatangelapally@gmail.com"
+    smtp_server = "email-smtp.us-east-1.amazonaws.com"
+    smtp_port = 587
+    smtp_username = "AKIAS74TLYHELKOX7D74"
+    smtp_password = "BOnvUFr8KQHsryZa3a/r2NRXSASK6UbhSpRIwLamvEZD"
 
     # Get actual values from environment variables
     env = os.environ.get('ENV', 'np')  # Default environment
@@ -61,21 +62,18 @@ def main():
     print(f"Using Build Status: {build_status}")
 
     # Prepare the email body
-    html_body = f"""
+    email_subject = f"CodeBuild Alert for project {project_name}"
+    email_body = f"""
     <p>Hi Team,</p>
     <p>Below is the CodeBuild alert notification.</p>
     <p>Project Name: {project_name}</p>
     <p>Status: {build_status}</p>
     """
-    email_subject = f"CodeBuild Alert for project {project_name}"
 
     # Check the build status and send emails accordingly
-    if build_status == 'IN_PROGRESS':
+    if build_status in ['IN_PROGRESS', 'SUCCEEDED', 'FAILED', 'STOPPED']:
         print(f'Sending email for project: {project_name} with status: {build_status}')
-        send_email(html_body)
-    elif build_status in ['SUCCEEDED', 'FAILED', 'STOPPED']:
-        print(f'Sending email for project: {project_name} with status: {build_status}')
-        send_email(html_body)
+        send_email(email_subject, email_body, email_from, email_to, smtp_server, smtp_port, smtp_username, smtp_password)
     else:
         print(f'Build status {build_status} is not in the list of statuses to process.')
 
