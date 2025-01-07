@@ -1,10 +1,11 @@
 import os
+import time
 import boto3
 import smtplib
 from email.mime.text import MIMEText
 
 def send_email(subject, message, from_email, to_email, smtp_server, smtp_port, smtp_username, smtp_password):
-    msg = MIMEText(message)
+    msg = MIMEText(message, 'html')
     msg['Subject'] = subject
     msg['From'] = from_email
     msg['To'] = to_email
@@ -40,7 +41,6 @@ def main():
     smtp_username = "AKIAS74TLYHELKOX7D74"
     smtp_password = "BOnvUFr8KQHsryZa3a/r2NRXSASK6UbhSpRIwLamvEZD"
 
-    # Get actual values from environment variables
     env = os.environ.get('ENV', 'np')  # Default environment
     project_name = os.environ.get('CODEBUILD_PROJECT', f"codebuildtest-{env}")
     build_id = os.environ.get('CODEBUILD_BUILD_ID')  # This should be set by CodeBuild
@@ -52,13 +52,14 @@ def main():
     print(f"Using Project Name: {project_name}")
     print(f"Using Build ID: {build_id}")
 
-    # Fetch the build status dynamically
+    # Poll build status until it's no longer "IN_PROGRESS"
     build_status = get_build_status(build_id)
-    if not build_status:
-        print("Could not determine build status.")
-        return
+    while build_status == 'IN_PROGRESS':
+        print("Build is still in progress. Waiting for status to change...")
+        time.sleep(30)  # Wait for 30 seconds before checking again
+        build_status = get_build_status(build_id)
 
-    print(f"Using Build Status: {build_status}")
+    print(f"Final Build Status: {build_status}")
 
     # Prepare the email body
     email_subject = f"CodeBuild Alert for project {project_name}"
@@ -69,8 +70,8 @@ def main():
     <p>Status: {build_status}</p>
     """
 
-    # Send email based on the build status
-    print(f'Sending email for project: {project_name} with status: {build_status}')
+    # Send email based on the final build status
+    print(f'Sending email for project: {project_name} with final status: {build_status}')
     send_email(email_subject, email_body, email_from, email_to, smtp_server, smtp_port, smtp_username, smtp_password)
 
 if __name__ == '__main__':
