@@ -1,0 +1,27 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+    commands:
+      - pip install boto3
+
+  pre_build:
+    commands:
+      - echo "Pre-build phase started"
+      - python send_email.py "Pre-build phase started"
+
+  build:
+    commands:
+      - echo "Build phase started"
+      - python send_email.py "Build phase started"
+
+  post_build:
+    commands:
+      - echo "Post-build phase started"
+      - python send_email.py "Post-build phase started"
+
+artifacts:
+  files:
+    - '**/*'
