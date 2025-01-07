@@ -2,29 +2,24 @@ import os
 import boto3
 import smtplib
 from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
-def send_email(email_subject, html_body, email_from, email_to, smtp_server_ip, smtp_port, attachment=None):
-    msg = MIMEMultipart()
-    msg['Subject'] = email_subject
-    msg['From'] = email_from
-    recipients = email_to.split(',') if "," in email_to else [email_to]
-    msg['To'] = ", ".join(recipients)
-    msg.attach(MIMEText(html_body, 'html'))
-    if attachment:
-        part = MIMEBase('application', 'octet-stream')
-        part.set_payload(attachment.encode())  # Convert text to bytes
-        encoders.encode_base64(part)
-        part.add_header('Content-Disposition', 'attachment; filename="pipeline_log.txt"')
-        msg.attach(part)
-    try:
-        server = smtplib.SMTP(smtp_server_ip, smtp_port)
+def send_email(message):
+    smtp_server = "email-smtp.us-east-1.amazonaws.com"
+    smtp_port = 587
+    smtp_username = "AKIAS74TLYHELKOX7D74"
+    smtp_password = "BOnvUFr8KQHsryZa3a/r2NRXSASK6UbhSpRIwLamvEZD"
+    from_email = "harikarn10@gmail.com"
+    to_email = "harikrishnatangelapally@gmail.com"
+
+    msg = MIMEText(message)
+    msg['Subject'] = 'AWS CodeBuild Notification'
+    msg['From'] = from_email
+    msg['To'] = to_email
+
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
         server.starttls()
-        server.sendmail(email_from, recipients, msg.as_string())
-        server.quit()
-        print(f"Email sent to {', '.join(recipients)}.")
-    except Exception as e:
-        print(f"Error sending email: {e}")
+        server.login(smtp_username, smtp_password)
+        server.sendmail(from_email, to_email, msg.as_string())
 
 def get_build_status(build_id):
     codebuild_client = boto3.client('codebuild')
@@ -43,10 +38,6 @@ def get_build_status(build_id):
 def main():
     email_from = "harikarn10@gmail.com"
     email_to = "harikrishnatangelapally@gmail.com"
-    smtp_server_ip = "smtp.gmail.com"
-    smtp_port = 587
-    smtp_username = "AKIAS74TLYHELKOX7D74"
-    smtp_password = "BOnvUFr8KQHsryZa3a/r2NRXSASK6UbhSpRIwLamvEZD"
 
     # Get actual values from environment variables
     env = os.environ.get('ENV', 'np')  # Default environment
@@ -81,10 +72,10 @@ def main():
     # Check the build status and send emails accordingly
     if build_status == 'IN_PROGRESS':
         print(f'Sending email for project: {project_name} with status: {build_status}')
-        send_email(email_subject, html_body, email_from, email_to, smtp_server_ip, smtp_port)
+        send_email(html_body)
     elif build_status in ['SUCCEEDED', 'FAILED', 'STOPPED']:
         print(f'Sending email for project: {project_name} with status: {build_status}')
-        send_email(email_subject, html_body, email_from, email_to, smtp_server_ip, smtp_port)
+        send_email(html_body)
     else:
         print(f'Build status {build_status} is not in the list of statuses to process.')
 
