@@ -3,10 +3,8 @@ import boto3
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-from email import encoders
 
-def send_email(email_subject, html_body, email_from, email_to, smtp_port, attachment=None):
+def send_email(email_subject, html_body, email_from, email_to, smtp_server_ip, smtp_port, attachment=None):
     msg = MIMEMultipart()
     msg['Subject'] = email_subject
     msg['From'] = email_from
@@ -27,25 +25,6 @@ def send_email(email_subject, html_body, email_from, email_to, smtp_port, attach
         print(f"Email sent to {', '.join(recipients)}.")
     except Exception as e:
         print(f"Error sending email: {e}")
-
-def fetch_logs(project_name, build_id):
-    logs_client = boto3.client('logs')
-    log_group_name = f"/aws/codebuild/{project_name}"
-    log_stream_name = build_id.replace(":", "-")  # Replace colons with hyphens
-    try:
-        response = logs_client.get_log_events(
-            logGroupName=log_group_name,
-            logStreamName=log_stream_name,
-            startFromHead=True
-        )
-    except Exception as e:
-        print(f"Error fetching logs: {e}")
-        return None
-
-    log_messages = 'Logs for build {0}:\n'.format(build_id)
-    for log_event in response.get('events', []):
-        log_messages += log_event['message'] + '\n'
-    return log_messages
 
 def get_build_status(build_id):
     codebuild_client = boto3.client('codebuild')
@@ -88,8 +67,6 @@ def main():
 
     print(f"Using Build Status: {build_status}")
 
-    log_messages = fetch_logs(project_name, build_id)
-
     # Prepare the email body
     html_body = f"""
     <p>Hi Team,</p>
@@ -104,12 +81,8 @@ def main():
         print(f'Sending email for project: {project_name} with status: {build_status}')
         send_email(email_subject, html_body, email_from, email_to, smtp_server_ip, smtp_port)
     elif build_status in ['SUCCEEDED', 'FAILED', 'STOPPED']:
-        if log_messages:
-            html_body += f"<p>Logs:</p><pre>{log_messages}</pre>"
-            print(f'Sending email with log for project: {project_name} with status: {build_status}')
-            send_email(email_subject, html_body, email_from, email_to, smtp_server_ip, smtp_port, attachment=log_messages)
-        else:
-            print(f'No logs found for project: {project_name}')
+        print(f'Sending email for project: {project_name} with status: {build_status}')
+        send_email(email_subject, html_body, email_from, email_to, smtp_server_ip, smtp_port)
     else:
         print(f'Build status {build_status} is not in the list of statuses to process.')
 
