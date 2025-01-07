@@ -45,6 +45,8 @@ def main():
     email_to = "harikrishnatangelapally@gmail.com"
     smtp_server_ip = "smtp.gmail.com"
     smtp_port = 587
+    smtp_username = "AKIAS74TLYHELKOX7D74"
+    smtp_password = "BOnvUFr8KQHsryZa3a/r2NRXSASK6UbhSpRIwLamvEZD"
 
     # Get actual values from environment variables
     env = os.environ.get('ENV', 'np')  # Default environment
