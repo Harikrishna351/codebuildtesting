@@ -43,7 +43,11 @@ def main():
     # Get actual values from environment variables
     env = os.environ.get('ENV', 'np')  # Default environment
     project_name = os.environ.get('CODEBUILD_PROJECT', f"codebuildtest-{env}")
-    build_id = os.environ.get('CODEBUILD_BUILD_ID', 'your-build-id')  # Update with actual build ID
+    build_id = os.environ.get('CODEBUILD_BUILD_ID')  # This should be set by CodeBuild
+
+    if not build_id:
+        print("Build ID not found in environment variables.")
+        return
 
     print(f"Using Project Name: {project_name}")
     print(f"Using Build ID: {build_id}")
