@@ -61,8 +61,8 @@ def main():
     """
     send_email(email_subject, email_body, email_from, email_to, smtp_server, smtp_port, smtp_username, smtp_password)
 
-    # Poll build status until it's no longer "IN_PROGRESS" or until a timeout
-    timeout = 30  # Set a timeout of 1 hour (3600 seconds)
+    # Poll build status until it's no longer "IN_PROGRESS"
+    timeout = 3600  # Set a timeout of 1 hour (3600 seconds)
     start_time = time.time()
     
     while True:
@@ -83,7 +83,10 @@ def main():
         print("Build is still in progress. Waiting for status to change...")
         time.sleep(15)  # Reduce wait time to 15 seconds for quicker updates
 
-    # Prepare the final email body
+    # Wait a moment to ensure the final status is set
+    time.sleep(10)  # Additional wait time before checking the final status
+
+    # Final email notification
     final_email_subject = f"CodeBuild Final Status for project {project_name}"
     final_email_body = f"""
     <p>Hi Team,</p>
@@ -91,7 +94,7 @@ def main():
     <p>Build ID: {build_id}</p>
     <p>Status: <strong>{build_status}</strong></p>
     """
-
+    
     # Send email with final build status
     print(f'Sending final email for project: {project_name} with final status: {build_status}')
     send_email(final_email_subject, final_email_body, email_from, email_to, smtp_server, smtp_port, smtp_username, smtp_password)
