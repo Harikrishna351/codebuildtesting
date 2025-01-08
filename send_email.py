@@ -81,7 +81,7 @@ def main():
             return
 
         print("Build is still in progress. Waiting for status to change...")
-        time.sleep(30)  # Reduce wait time to 15 seconds for quicker updates
+        time.sleep(15)  # Reduce wait time to 15 seconds for quicker updates
 
     # Prepare the final email body
     final_email_subject = f"CodeBuild Final Status for project {project_name}"
