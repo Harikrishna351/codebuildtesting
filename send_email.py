@@ -62,7 +62,7 @@ def main():
     send_email(email_subject, email_body, email_from, email_to, smtp_server, smtp_port, smtp_username, smtp_password)
 
     # Poll build status until it's no longer "IN_PROGRESS"
-    timeout = 3600  # Set a timeout of 1 hour (3600 seconds)
+    timeout = 60  # Set a timeout of 1 hour (3600 seconds)
     start_time = time.time()
     
     while True:
@@ -81,7 +81,7 @@ def main():
             return
 
         print("Build is still in progress. Waiting for status to change...")
-        time.sleep(15)  # Reduce wait time to 15 seconds for quicker updates
+        time.sleep(10)  # Reduce wait time to 15 seconds for quicker updates
 
     # Wait a moment to ensure the final status is set
     time.sleep(10)  # Additional wait time before checking the final status
