@@ -62,7 +62,7 @@ def main():
     send_email(email_subject, email_body, email_from, email_to, smtp_server, smtp_port, smtp_username, smtp_password)
 
     # Poll build status until it's no longer "IN_PROGRESS"
-    timeout = 60  # Set a timeout of 1 hour (3600 seconds)
+    timeout = 360  # Set a timeout of 1 hour (3600 seconds)
     start_time = time.time()
     
     while True:
