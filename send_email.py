@@ -52,27 +52,35 @@ def main():
     print(f"Using Project Name: {project_name}")
     print(f"Using Build ID: {build_id}")
 
+    # Send initial email that the build is in progress
+    email_subject = f"CodeBuild Alert for project {project_name}"
+    email_body = f"""
+    <p>Hi Team,</p>
+    <p>The build for <strong>{project_name}</strong> is currently <strong>IN_PROGRESS</strong>.</p>
+    <p>Build ID: {build_id}</p>
+    """
+    send_email(email_subject, email_body, email_from, email_to, smtp_server, smtp_port, smtp_username, smtp_password)
+
     # Poll build status until it's no longer "IN_PROGRESS"
     build_status = get_build_status(build_id)
     while build_status == 'IN_PROGRESS':
         print("Build is still in progress. Waiting for status to change...")
-        time.sleep(30)  # Wait for 30 seconds before checking again
         build_status = get_build_status(build_id)
 
     print(f"Final Build Status: {build_status}")
 
-    # Prepare the email body
-    email_subject = f"CodeBuild Alert for project {project_name}"
-    email_body = f"""
+    # Prepare the final email body
+    final_email_subject = f"CodeBuild Final Status for project {project_name}"
+    final_email_body = f"""
     <p>Hi Team,</p>
-    <p>Below is the CodeBuild alert notification.</p>
-    <p>Project Name: {project_name}</p>
-    <p>Status: {build_status}</p>
+    <p>The build for <strong>{project_name}</strong> has finished.</p>
+    <p>Build ID: {build_id}</p>
+    <p>Status: <strong>{build_status}</strong></p>
     """
 
-    # Send email based on the final build status
-    print(f'Sending email for project: {project_name} with final status: {build_status}')
-    send_email(email_subject, email_body, email_from, email_to, smtp_server, smtp_port, smtp_username, smtp_password)
+    # Send email with final build status
+    print(f'Sending final email for project: {project_name} with final status: {build_status}')
+    send_email(final_email_subject, final_email_body, email_from, email_to, smtp_server, smtp_port, smtp_username, smtp_password)
 
 if __name__ == '__main__':
     main()
