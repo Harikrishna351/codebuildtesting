@@ -66,7 +66,7 @@ def main():
     while build_status == 'IN_PROGRESS':
         print("Build is still in progress. Waiting for status to change...")
         build_status = get_build_status(build_id)
-
+        sleep_time = min(sleep_time * 2, 300)
     print(f"Final Build Status: {build_status}")
 
     # Prepare the final email body based on the final build status
