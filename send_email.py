@@ -62,7 +62,9 @@ def main():
     send_email(email_subject, email_body, email_from, email_to, smtp_server, smtp_port, smtp_username, smtp_password)
 
     # Poll build status until it's no longer "IN_PROGRESS"
+    
     build_status = get_build_status(build_id)
+    sleep_time = 30
     while build_status == 'IN_PROGRESS':
         print("Build is still in progress. Waiting for status to change...")
         build_status = get_build_status(build_id)
